@@ -15,7 +15,7 @@ export default function Home() {
         <div className="text-sm text-gray-500 tracking-widest">+ SQLITE BOILERPLATE</div>
 
         <div className="font-mono text-sm text-center sm:text-left">
-        Because I'm tired of Supabase shutting down our projects after 30 days.
+        Because I&apos;m tired of Supabase shutting down our projects after 30 days.
         </div>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">

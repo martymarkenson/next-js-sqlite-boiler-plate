@@ -201,13 +201,96 @@ For production deployment:
    - Run migrations on the new database
    - Better concurrency and performance
 
-### Deploy to Vercel
 
-```bash
-vercel deploy
-```
+### Deploy to Coolify
 
-Make sure to add your environment variables in the Vercel dashboard.
+[Coolify](https://coolify.io/) is a self-hosted alternative to Heroku, Netlify, and Vercel. It's perfect for deploying this boilerplate on your own infrastructure.
+
+#### Prerequisites
+
+- A Coolify instance running (self-hosted or managed)
+- A Git repository (GitHub, GitLab, or Gitea)
+- SSH access to your Coolify server (for database file persistence)
+
+#### Deployment Steps
+
+1. **Push your code to a Git repository**
+   ```bash
+   git remote add origin <your-repo-url>
+   git push -u origin main
+   ```
+
+2. **Create a new project in Coolify**
+   - Log into your Coolify dashboard
+   - Click "Add a new resource" → "Public Repository" or connect your Git source
+   - Select your repository and branch (usually `main`)
+
+3. **Configure build settings**
+   - **Build Pack**: Nixpacks (auto-detected)
+   - **Port**: 3000 (Next.js default)
+   - **Build Command**: `npm run build` (auto-detected)
+   - **Start Command**: `npm start` (auto-detected)
+
+4. **Set environment variables**
+   
+   In the Coolify environment variables section, add:
+   ```env
+   API_SECRET_KEY=your-production-secret-key
+   DATABASE_URL=file:./prisma/database.db
+   NODE_ENV=production
+   ```
+
+5. **Configure persistent storage for SQLite**
+   
+   **Important**: SQLite needs persistent storage to keep data between deployments.
+   
+   - Go to "Storage" tab in your Coolify application
+   - Add a new volume:
+     - **Source Path**: `/app/prisma` (or your server path)
+     - **Destination Path**: `/app/prisma`
+   - This ensures your `database.db` file persists across deployments
+
+6. **Add database initialization script**
+   
+   To run migrations on first deployment, you can:
+   
+   **Option A**: Use the `nixpacks.toml` file (already included):
+   ```toml
+   [phases.setup]
+   cmds = ['npm run db:migrate']
+   ```
+   
+   **Option B**: SSH into your Coolify container and run:
+   ```bash
+   npm run db:migrate
+   ```
+
+7. **Deploy**
+   - Click "Deploy" in Coolify
+   - Monitor the build logs
+   - Once deployed, Coolify will provide you with a URL
+
+8. **Verify deployment**
+   ```bash
+   curl -H "x-api-key: your-secret-key" https://your-app.coolify.io/api/posts
+   ```
+
+#### Coolify-Specific Tips
+
+- **Auto-deployments**: Enable webhook deployments for automatic updates on git push
+- **Custom domains**: Add your domain in the Coolify domain settings
+- **SSL certificates**: Coolify auto-provisions Let's Encrypt certificates
+- **Health checks**: Coolify monitors your app and restarts if needed
+- **Database backups**: Set up regular backups of the `/app/prisma` volume
+- **Logs**: Access logs directly in the Coolify dashboard
+
+#### Scaling Considerations
+
+If your app grows beyond SQLite's capabilities on Coolify:
+1. Deploy a PostgreSQL database in Coolify (separate resource)
+2. Update your `DATABASE_URL` to point to the PostgreSQL instance
+3. Run migrations with the new database URL
+4. Remove the SQLite volume mount
 
 ## 🤝 Contributing
 

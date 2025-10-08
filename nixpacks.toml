@@ -1,6 +1,7 @@
 [phases.setup]
 nixPkgs = ["nodejs_20", "python3", "openssl"]
 nixLibs = ["gcc-unwrapped"]
+aptPkgs = ["python3", "python3-pip", "build-essential"]
 
 [phases.install]
 cmds = ["npm ci"]
@@ -10,4 +11,3 @@ cmds = ["npm run build"]
 
 [start]
 cmd = "npm run start"
-
